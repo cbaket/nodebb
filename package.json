@@ -6,22 +6,35 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "*",
-    "serve-favicon": "*",
-    "underscore": "*",
-    "sequelize": "*",
-    "mysql": "*",
-    "lodash": "*",
-    "cors": "*",
-    "node-uuid": "*",
     "bcrypt-nodejs": "*",
-    "moment": "*",
+    "bluebird": "*",
+    "body-parser": "*",
+    "cors": "*",
+    "express": "*",
     "express-jwt": "*",
     "jsonwebtoken": "*",
-    "body-parser": "*",
-    "bluebird": "*",
-    "morgan": "*",
+    "lodash": "*",
     "method-override": "*",
-    "serve-static": "*"
-  }
+    "moment": "*",
+    "morgan": "*",
+    "mysql": "^2.6.2",
+    "node-uuid": "*",
+    "sequelize": "^2.1.0",
+    "serve-favicon": "*",
+    "serve-static": "*",
+    "underscore": "*"
+  },
+  "description": "This is a simple node.js application showing how to combine:",
+  "main": "rest.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cbaket/nodebb.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cbaket/nodebb/issues"
+  },
+  "homepage": "https://github.com/cbaket/nodebb"
 }

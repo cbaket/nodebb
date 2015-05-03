@@ -7,7 +7,7 @@ module.exports = function (app) {
     var fs = require('fs');
     var path = require('path');
     var Sequelize = require('sequelize');
-    var http = require('http')
+    var http = require('http');
     var console = require('console');
     var P = app.Promise;
 
@@ -44,16 +44,19 @@ module.exports = function (app) {
         var force = false;
     }
 
-    console.log("Connecting to " + db_credentials.dbname);
+    console.log("Connecting to " + db_credentials.dbname + " User: " + db_credentials.username + " pass: " + db_credentials.password);
 
-    var sequelize = require('sequelize'), sequelize = new Sequelize(
-        db_credentials.dbname, db_credentials.username,
-        db_credentials.password, {
-            host: db_credentials.host,
-            dialect: "mysql",
-            port: db_credentials.port,
-            logging: console.log
-        });
+    var sequelize = new Sequelize(
+            db_credentials.dbname,
+            db_credentials.username,
+            db_credentials.password,
+            {
+                host: db_credentials.host,
+                dialect: "mysql",
+                port: db_credentials.port,
+                logging: console.log
+            }
+        );
 
     db.Sequelize = Sequelize;
     db.sequelize = sequelize;
@@ -61,37 +64,33 @@ module.exports = function (app) {
     var df = P.defer();
     db.initPromise = df.promise;
 
+    console.log('Eestablishing connection.');
+    fs.readdirSync(__dirname).filter(function (file) {
+        return (file.indexOf('.') !== 0) && (file !== 'index.js'); //seleccionem tots els models del directori models.
+    }).forEach(function (file) {
+        var model = sequelize.import(path.join(__dirname + "/"+file));
+        db[model.name] = model;
+        console.log("mdel: " + model.name);
+    });
 
-    sequelize.authenticate().complete(function (err) {
-        if (!!err) {
-            df.reject(err);
-        } else {
-            console.log('Connection has been established successfully.');
-            fs.readdirSync(__dirname).filter(function (file) {
-                return (file.indexOf('.') !== 0) && (file !== 'index.js')
-            }).forEach(function (file) {
-                var model = sequelize.import(path.join(__dirname, file))
-                db[model.name] = model;
-            });
+    Object.keys(db).forEach(function (modelName) {
+        if ('associate' in db[modelName]) {
+            db[modelName].associate(db);
 
-            Object.keys(db).forEach(function (modelName) {
-                if ('associate' in db[modelName]) {
-                    db[modelName].associate(db);
-                }
-            });
-
-            sequelize
-                .sync({ force: force })
-                .complete(function (err) {
-                    if (err) {
-                        df.reject(err)
-                    } else {
-                        df.resolve();
-
-                    }
-                })
         }
     });
 
+    //sequelize.sync({force:true}).then(function() { // Drops tables before recreating them.
+    sequelize.sync().then(function() {
+        console.log('Connection has been established successfully.');
+    },function(err){
+        console.error('Connection Error: '+err);
+        df.reject(err);
+    }).then(function() {
+        console.log("Database Inicialized");
+        df.resolve();
+    }).done();
+
     return db;
 }
+//TODO: remove imdb installs;
